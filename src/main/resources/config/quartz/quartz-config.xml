@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--定义触发任务-->
+    <bean id="videoUrlJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <bean class="com.batch.service.BactService"/>
+        </property>
+        <property name="targetMethod" value="test"/>  <!-- 要执行的方法名称 -->
+        <property name="concurrent" value="false"/><!-- 作业不并发调度 -->
+    </bean>
+    <!--定义调度触发器-->
+    <bean id="videoUrlTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="videoUrlJob"></property>
+        <property name="cronExpression">
+            <value>*/5 * * * * ?</value>
+        </property>
+    </bean>
+
+    <bean id="schedulerFactory" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <!--<property name="dataSource" ref="dataSource"/>-->
+        <!--<property name="startupDelay" value="10"></property>-->
+        <property name="triggers">
+            <list>
+                <!--在这里可以定义多个触发器-->
+                <ref bean="videoUrlTrigger"/>
+            </list>
+        </property>
+    </bean>
+</beans>
