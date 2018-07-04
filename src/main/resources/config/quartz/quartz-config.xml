@@ -1,33 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!--定义触发任务-->
-    <bean id="videoUrlJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-        <property name="targetObject">
-            <bean class="com.batch.service.BactService"/>
-        </property>
-        <property name="targetMethod" value="test"/>  <!-- 要执行的方法名称 -->
-        <property name="concurrent" value="false"/><!-- 作业不并发调度 -->
-    </bean>
-    <!--定义调度触发器-->
-    <bean id="videoUrlTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="jobDetail" ref="videoUrlJob"></property>
-        <property name="cronExpression">
-            <value>*/5 * * * * ?</value>
+    <!-- 整合spring batch中的job -->
+    <bean id="quartzJob" class="com.batch.service.quartz.QuartzJobLauncher"></bean>
+
+    <!-- 配置jobDetail，存放job的一些信息 -->
+    <!-- jobLauncher和jobRegistry为在batch-config.xml配置好的bean,在此直接引用即可，前提是配置文件在spring boot工程启动时就要加入容器，这个在测试方法中配置 -->
+    <bean id="jobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+        <property name="jobClass" value="com.batch.service.quartz.QuartzJobLauncher"></property>
+        <property name="jobDataMap">
+            <map>
+                <entry key="jobName" value="myJob"></entry>
+                <entry key="jobLauncher" value-ref="jobLauncher"></entry>
+                <entry key="jobLocator" value-ref="jobRegistry"></entry>
+            </map>
         </property>
     </bean>
 
-    <bean id="schedulerFactory" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-        <!--<property name="dataSource" ref="dataSource"/>-->
-        <!--<property name="startupDelay" value="10"></property>-->
-        <property name="triggers">
-            <list>
-                <!--在这里可以定义多个触发器-->
-                <ref bean="videoUrlTrigger"/>
-            </list>
-        </property>
+    <!-- 配置定时 -->
+    <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="jobDetail"></property>
+        <property name="cronExpression" value="0/3 * * * * ?"></property>
+        <property name="startDelay" value="3000"></property>
     </bean>
+
+    <!-- 配置任务，绑定jobDetail和cronTrigger，并启动定时 -->
+    <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers" ref="cronTrigger"></property>
+    </bean>
+
 </beans>
