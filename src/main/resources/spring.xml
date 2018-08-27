@@ -18,11 +18,13 @@
             <list>
                 <value>classpath*:config/properties/mybatis.properties</value>
                 <value>classpath*:config/properties/redis.properties</value>
+                <value>classpath*:config/properties/rabbit.properties</value>
             </list>
         </property>
     </bean>
     <import resource="config/quartz/quartz-config.xml"/>
     <import resource="config/batch/batch-config.xml"/>
     <import resource="config/batch/spring-redis.xml"/>
+    <import resource="config/batch/spring-rabbit.xml"/>
     <!--<import resource="config/batch/spring-mybatis.xml"/>-->
 </beans>

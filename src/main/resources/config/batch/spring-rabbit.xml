@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+      http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+      http://www.springframework.org/schema/rabbit
+      http://www.springframework.org/schema/rabbit/spring-rabbit-1.0.xsd">
+
+	<rabbit:connection-factory id="connectionFactory"
+		host="${batch.rabbit.host}" port="${batch.rabbit.port}" username="${batch.rabbit.username}" password="${batch.rabbit.password}" />
+
+	<rabbit:admin connection-factory="connectionFactory" />
+
+	<rabbit:template id="amqpTemplate" connection-factory="connectionFactory" exchange="as_exchange" />
+
+	<rabbit:direct-exchange name="as_exchange" durable="true" auto-delete="false" id="as_exchange">
+		<rabbit:bindings>
+			<!-- 接收发送消息 -->
+		</rabbit:bindings>
+	</rabbit:direct-exchange>
+
+</beans>
