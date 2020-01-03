@@ -32,6 +32,10 @@ public class MyTasklet implements Tasklet {
     @Override
     public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
         System.out.println("task");
+        Thread.sleep(1000*3);   // 休眠3秒
+//        for (int i = 0; i < 10000; i++) {
+//            System.out.println("task11====" + i);
+//        }
         redisService.setnx("aaa", "bbb", 100);
         return RepeatStatus.FINISHED;
     }

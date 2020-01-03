@@ -2,13 +2,26 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:util="http://www.springframework.org/schema/util" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:bean="http://www.springframework.org/schema/batch"
+       xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/context
-	http://www.springframework.org/schema/context/spring-context-3.0.xsd
-	http://www.springframework.org/schema/beans 
-	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
-    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+        http://www.springframework.org/schema/util
+        http://www.springframework.org/schema/util/spring-util-3.0.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+        http://www.springframework.org/schema/task
+        http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/batch
+        http://www.springframework.org/schema/batch/spring-batch.xsd">
 
     <!--自动扫描含有@Service将其注入为bean -->
     <context:component-scan base-package="com.batch.service.*" />
@@ -18,13 +31,90 @@
             <list>
                 <value>classpath*:config/properties/mybatis.properties</value>
                 <value>classpath*:config/properties/redis.properties</value>
-                <value>classpath*:config/properties/rabbit.properties</value>
+                <!--<value>classpath*:config/properties/rabbit.properties</value>-->
             </list>
         </property>
     </bean>
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 配置spring batch的jobRepository，负责与数据库打交道 -->
+    <bean id="jobRepository" class="org.springframework.batch.core.repository.support.JobRepositoryFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="transactionManager" ref="transactionManager"/>
+    </bean>
+
+    <!-- 配置spring batch的 jobLauncher，用来启动Job-->
+    <bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+        <property name="jobRepository" ref="jobRepository"/>
+    </bean>
+
+    <!-- 配置大小为5的线程池 -->
+    <!--<task:executor id="executor" pool-size="5"/>-->
+    <!--&lt;!&ndash; 配置spring batch的 jobLauncher，用来启动Job 异步&ndash;&gt;-->
+    <!--<bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">-->
+        <!--<property name="jobRepository" ref="jobRepository"/>-->
+        <!--&lt;!&ndash; 为作业调度器配置执行的线程池，作业执行期间会从线程池中选择一个线程执行job &ndash;&gt;-->
+        <!--<property name="taskExecutor" ref="executor"/>-->
+    <!--</bean>-->
+
+    <!-- 注册job，把job注入到容器中，在jobLauncher启动job时才能从容器中获取要启动的Job -->
+    <bean id="jobRegistry" class="org.springframework.batch.core.configuration.support.MapJobRegistry"></bean>
+    <bean class="org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor">
+        <property name="jobRegistry" ref="jobRegistry"/>
+    </bean>
+
+    <!-- 定义作业的浏览接口，可以通过数据库查询Job的元数据信息 -->
+    <bean id="jobExplorer" class="org.springframework.batch.core.explore.support.JobExplorerFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 定义作业操作，可以对作业实例进行CRUD和控制处理 （CRUD：在做计算处理时的增加(Create)、读取(Read)、更新(Update)和删除(Delete)）-->
+    <bean id="jobOperator" class="org.springframework.batch.core.launch.support.SimpleJobOperator">
+        <property name="jobRepository" ref="jobRepository"/>
+        <property name="jobLauncher" ref="jobLauncher"/>
+        <property name="jobExplorer" ref="jobExplorer"/>
+        <property name="jobRegistry" ref="jobRegistry"/>
+    </bean>
+
+    <!--  -->
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="5"/>
+        <property name="maxPoolSize" value="15"/>
+    </bean>
+
+    <!-- job 监听器 -->
+    <bean id="jobStatefulListener" class="com.batch.listener.JobStatefulListener"/>
+
+    <!-- step 监听器 -->
+    <bean id="stepStatefulListener" class="com.batch.listener.StepStatefulListener"/>
+
+    <!-- tasklet 监听器 -->
+    <bean id="taskletStatefulListener" class="com.batch.listener.TaskletStatefulListener"/>
+
+    <!-- read 监听器 -->
+    <bean id="readStatefulListener" class="com.batch.listener.ReadStatefulListener"/>
+
+    <!-- processor 监听器 -->
+    <bean id="processorStatefulListener" class="com.batch.listener.ProcessorStatefulListener"/>
+
+    <!-- writer 监听器 -->
+    <bean id="writerStatefulListener" class="com.batch.listener.WriterStatefulListener"/>
+
+    <!-- chunk 监听器 -->
+    <bean id="chunkStatefulListener" class="com.batch.listener.ChunkStatefulListener"/>
+
+    <!-- skip 监听器 (reader,proecssor,writer 发生异常跳过是触发) -->
+    <bean id="skipStatefulListener" class="com.batch.listener.SkipStatefulListener"/>
+
+    <!-- 作业终止拦截器 step和read结合运用 -->
+    <bean id="stopStepListener" class="com.batch.listener.StopStepListener"/>
+
     <import resource="config/quartz/quartz-config.xml"/>
     <import resource="config/batch/batch-config.xml"/>
     <import resource="config/batch/spring-redis.xml"/>
-    <import resource="config/batch/spring-rabbit.xml"/>
-    <!--<import resource="config/batch/spring-mybatis.xml"/>-->
+    <!--<import resource="config/batch/spring-rabbit.xml"/>-->
+    <import resource="config/batch/spring-mybatis.xml"/>
 </beans>

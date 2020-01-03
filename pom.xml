@@ -20,7 +20,7 @@
     <org.springframework.version>3.0.7.RELEASE</org.springframework.version>
     <springframework.version>4.3.7.RELEASE</springframework.version>
     <version.mybatis>3.2.8</version.mybatis>
-    <version.mysql>5.1.35</version.mysql>
+    <version.mysql>8.0.11</version.mysql>
     <version.mybatis.spring>1.2.2</version.mybatis.spring>
     <springdata.redis.version>1.5.0.RELEASE</springdata.redis.version>
     <jedis.version>2.6.2</jedis.version>
@@ -124,6 +124,8 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
+      <version>3.0.1</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -219,10 +221,17 @@
       <artifactId>log4j</artifactId>
       <version>1.2.16</version>
     </dependency>
+    <!-- springMVC核心包 -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <!-- spring核心包 -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>${org.springframework.version}</version>
+      <version>${springframework.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.batch</groupId>
@@ -258,22 +267,9 @@
       <version>${springframework.version}</version>
     </dependency>
 
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
-      <version>${springframework.version}</version>
-    </dependency>
-
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-expression</artifactId>
-      <version>${springframework.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-jdbc</artifactId>
       <version>${springframework.version}</version>
     </dependency>
 
@@ -337,9 +333,21 @@
       <artifactId>aspectjweaver</artifactId>
       <version>1.6.8</version>
     </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.persistence</groupId>
+      <artifactId>persistence-api</artifactId>
+      <version>1.0.2</version>
+    </dependency>
   </dependencies>
   <build>
-    <finalName>spring-batch</finalName>
+    <finalName>ROOT</finalName>
       <plugins>
           <plugin>
               <groupId>org.apache.maven.plugins</groupId>
