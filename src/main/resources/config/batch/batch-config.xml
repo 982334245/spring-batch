@@ -38,62 +38,61 @@
     </batch:step>
 
     <!-- 配置job工作 -->
-    <batch:job id="myJob" restartable="true" parent="baseJob">
-        <batch:step id="myStep" allow-start-if-complete="true" parent="baseStep">
-            <!-- start-limit启动次数 -->
-            <batch:tasklet transaction-manager="transactionManager" ref="myTasklet" start-limit="1" task-executor="scheduler2">
-                <!-- 定义事务的隔离级别和事务传播方式（REQUIRED：表示需要事务，如果卫冕有事务则加入外部事务，如果外部没有事务则新起一个事务）-->
-                <batch:transaction-attributes isolation="DEFAULT" propagation="REQUIRED" timeout="30"/>
-                <!-- 配置不触发回滚操作异常的配置 -->
-                <batch:no-rollback-exception-classes>
-                    <batch:include class="org.springframework.batch.item.validator.ValidationException"/>
-                </batch:no-rollback-exception-classes>
-            </batch:tasklet>
-        </batch:step>
-    </batch:job>
+    <!--<batch:job id="myJob" restartable="true" parent="baseJob">-->
+        <!--<batch:step id="myStep" allow-start-if-complete="true" parent="baseStep">-->
+            <!--&lt;!&ndash; start-limit启动次数 &ndash;&gt;-->
+            <!--<batch:tasklet transaction-manager="transactionManager" ref="myTasklet" start-limit="1" task-executor="scheduler2">-->
+                <!--&lt;!&ndash; 定义事务的隔离级别和事务传播方式（REQUIRED：表示需要事务，如果卫冕有事务则加入外部事务，如果外部没有事务则新起一个事务）&ndash;&gt;-->
+                <!--<batch:transaction-attributes isolation="DEFAULT" propagation="REQUIRED" timeout="30"/>-->
+                <!--&lt;!&ndash; 配置不触发回滚操作异常的配置 &ndash;&gt;-->
+                <!--<batch:no-rollback-exception-classes>-->
+                    <!--<batch:include class="org.springframework.batch.item.validator.ValidationException"/>-->
+                <!--</batch:no-rollback-exception-classes>-->
+            <!--</batch:tasklet>-->
+        <!--</batch:step>-->
+    <!--</batch:job>-->
 
     <bean id="myTasklet" class="com.batch.tasklet.MyTasklet" scope="step">
     </bean>
 
-    <!-- scheduled 定时任务测试 -->
-    <batch:job id="scheduledJob" restartable="true" parent="baseJob">
-        <batch:step id="scheduledStep" allow-start-if-complete="true">
-            <batch:tasklet ref="myTasklet" />
-        </batch:step>
-    </batch:job>
-
     <!-- chunkJob -->
-    <batch:job id="chunkJob" restartable="true" parent="baseJob">
-        <batch:step id="chunkStep">
-            <batch:tasklet>
-                <batch:chunk reader="readerChunk" processor="processorChunk" writer="writerChunk"
-                             commit-interval="2" skip-limit="20">
-                    <batch:skippable-exception-classes>
-                        <batch:include class="java.lang.RuntimeException"/>
-                        <batch:exclude class="java.io.FileNotFoundException"/>
-                    </batch:skippable-exception-classes>
-                </batch:chunk>
-            </batch:tasklet>
-        </batch:step>
-    </batch:job>
+    <!--<batch:job id="chunkJob" restartable="true" parent="baseJob">-->
+        <!--<batch:step id="chunkStep">-->
+            <!--<batch:tasklet>-->
+                <!--<batch:chunk reader="readerChunk" processor="processorChunk" writer="writerChunk"-->
+                             <!--commit-interval="2" skip-limit="20">-->
+                    <!--<batch:skippable-exception-classes>-->
+                        <!--<batch:include class="java.lang.RuntimeException"/>-->
+                        <!--<batch:exclude class="java.io.FileNotFoundException"/>-->
+                    <!--</batch:skippable-exception-classes>-->
+                <!--</batch:chunk>-->
+            <!--</batch:tasklet>-->
+        <!--</batch:step>-->
+    <!--</batch:job>-->
 
-    <bean id="readerChunk" class="com.batch.tasklet.MyTasklet" scope="step">
-    </bean>
-    <bean id="processorChunk" class="com.batch.processor.ProcessorChunk" scope="step">
-    </bean>
-    <bean id="writerChunk" class="com.batch.writer.WriterChunk" scope="step">
-    </bean>
+    <!--<bean id="readerChunk" parent="mybatisPaginItemReader" scope="step">-->
+    <!--</bean>-->
+    <!--<bean id="processorChunk" class="com.batch.processor.ProcessorChunk" scope="step">-->
+    <!--</bean>-->
+    <!--<bean id="writerChunk" class="com.batch.writer.WriterChunk" scope="step">-->
+    <!--</bean>-->
 
     <!-- 定义执行定时任务的线程池大小 -->
-    <task:scheduler id="scheduler2" pool-size="10" />
+    <!--<task:scheduler id="scheduler2" pool-size="10" />-->
     <!-- 每一秒种，执行对象 schedulerLauncher 的 launcher 方法一次 -->
-    <task:scheduled-tasks scheduler="scheduler2">
-        <task:scheduled ref="schedulerLauncher" method="launcher" cron="0/5 * * * * ?"/>
-    </task:scheduled-tasks>
+    <!--<task:scheduled-tasks scheduler="scheduler2">-->
+        <!--<task:scheduled ref="schedulerLauncher" method="launcher" cron="0/5 * * * * ?"/>-->
+    <!--</task:scheduled-tasks>-->
+    <!-- scheduled 定时任务测试 -->
+    <!--<batch:job id="scheduledJob" restartable="true" parent="baseJob">-->
+        <!--<batch:step id="scheduledStep" allow-start-if-complete="true">-->
+            <!--<batch:tasklet ref="myTasklet" />-->
+        <!--</batch:step>-->
+    <!--</batch:job>-->
     <!-- 定时任务执行的对象声明 -->
-    <bean id="schedulerLauncher" class="com.batch.service.scheduler.SchedulerLauncher">
-        <property name="job" ref="scheduledJob"/>
-        <property name="jobLauncher" ref="jobLauncher"/>
-    </bean>
+    <!--<bean id="schedulerLauncher" class="com.batch.service.scheduler.SchedulerLauncher">-->
+        <!--<property name="job" ref="scheduledJob"/>-->
+        <!--<property name="jobLauncher" ref="jobLauncher"/>-->
+    <!--</bean>-->
 
 </beans>

@@ -31,7 +31,7 @@
             <list>
                 <value>classpath*:config/properties/mybatis.properties</value>
                 <value>classpath*:config/properties/redis.properties</value>
-                <!--<value>classpath*:config/properties/rabbit.properties</value>-->
+                <value>classpath*:config/properties/rabbit.properties</value>
             </list>
         </property>
     </bean>
@@ -71,6 +71,11 @@
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
+    <!-- mybatis读取 -->
+    <bean id="mybatisPaginItemReader" class="org.mybatis.spring.batch.MyBatisPagingItemReader" scope="step" abstract="true">
+        <property name="sqlSessionFactory" ref="dataSource"></property>
+    </bean>
+
     <!-- 定义作业操作，可以对作业实例进行CRUD和控制处理 （CRUD：在做计算处理时的增加(Create)、读取(Read)、更新(Update)和删除(Delete)）-->
     <bean id="jobOperator" class="org.springframework.batch.core.launch.support.SimpleJobOperator">
         <property name="jobRepository" ref="jobRepository"/>
@@ -92,7 +97,7 @@
     <bean id="stepStatefulListener" class="com.batch.listener.StepStatefulListener"/>
 
     <!-- tasklet 监听器 -->
-    <bean id="taskletStatefulListener" class="com.batch.listener.TaskletStatefulListener"/>
+    <!--<bean id="taskletStatefulListener" class="com.batch.listener.TaskletStatefulListener"/>-->
 
     <!-- read 监听器 -->
     <bean id="readStatefulListener" class="com.batch.listener.ReadStatefulListener"/>
@@ -112,9 +117,19 @@
     <!-- 作业终止拦截器 step和read结合运用 -->
     <bean id="stopStepListener" class="com.batch.listener.StopStepListener"/>
 
+    <bean id="stepLocator"
+               class="org.springframework.batch.integration.partition.BeanFactoryStepLocator" />
+
     <import resource="config/quartz/quartz-config.xml"/>
     <import resource="config/batch/batch-config.xml"/>
     <import resource="config/batch/spring-redis.xml"/>
-    <!--<import resource="config/batch/spring-rabbit.xml"/>-->
+    <!--<import resource="config/batch/job-chunk-remote.xml"/>-->
+    <!--<import resource="config/batch/job-partition-remote-Slave.xml"/>-->
+    <!--<import resource="config/batch/job-partition-remote-Master.xml"/>-->
+    <!--<import resource="config/batch/job-partition-remote-MasterSlave.xml"/>-->
+    <import resource="config/batch/job-partition-remote-MasterSlave-rabbitMQ.xml"/>
+    <!--<import resource="config/batch/job-context.xml"/>-->
+    <import resource="config/batch/job-context-db.xml"/>
+    <import resource="config/batch/spring-rabbit.xml"/>
     <import resource="config/batch/spring-mybatis.xml"/>
 </beans>

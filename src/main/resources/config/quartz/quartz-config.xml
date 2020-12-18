@@ -12,7 +12,7 @@
         <property name="jobClass" value="com.batch.service.quartz.QuartzJobLauncher"></property>
         <property name="jobDataMap">
             <map>
-                <entry key="jobName" value="myJob"></entry>
+                <entry key="jobName" value="partitionRemoteJob"></entry>
                 <entry key="jobLauncher" value-ref="jobLauncher"></entry>
                 <entry key="jobLocator" value-ref="jobRegistry"></entry>
             </map>
@@ -22,7 +22,7 @@
     <!-- 配置定时 -->
     <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
         <property name="jobDetail" ref="jobDetail"></property>
-        <property name="cronExpression" value="30 40 11 * * ?"></property>
+        <property name="cronExpression" value="0 17 19 * * ?"></property>
         <property name="startDelay" value="3000"></property>
     </bean>
 
