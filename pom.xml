@@ -18,7 +18,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <org.springframework.version>3.0.7.RELEASE</org.springframework.version>
-    <springframework.version>4.3.7.RELEASE</springframework.version>
+    <springframework.version>5.2.21.RELEASE</springframework.version>
     <version.mybatis>3.2.8</version.mybatis>
     <version.mysql>8.0.11</version.mysql>
     <version.mybatis.spring>1.2.2</version.mybatis.spring>
